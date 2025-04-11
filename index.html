@@ -31,7 +31,7 @@
       document.body.innerHTML = "<h2 style='text-align:center;'>No PDF URL provided. Add ?file=PDF_URL to the URL.</h2>";
     } else {
       const container = document.getElementById("flipbook");
-      const pageFlip = new PageFlip(container, {
+      const pageFlip = new PageFlip.PageFlip(container, {
         width: 600,
         height: 800,
         size: "stretch",
