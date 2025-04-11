@@ -1,0 +1,28 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>PDF.js Viewer</title>
+    <style>
+      html, body {
+        margin: 0;
+        height: 100%;
+      }
+      iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+      const urlParams = new URLSearchParams(window.location.search);
+      const file = urlParams.get('file');
+      const encodedFile = encodeURIComponent(file);
+      const viewerUrl = `https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodedFile}`;
+      document.write(`<iframe src="${viewerUrl}"></iframe>`);
+    </script>
+  </body>
+</html>
