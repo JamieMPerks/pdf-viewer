@@ -1,0 +1,74 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PDF Flipbook Viewer</title>
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #f0f0f0;
+    }
+    #flipbook {
+      width: 90vw;
+      height: 90vh;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+  <script src="https://unpkg.com/st-pageflip/dist/js/page-flip.browser.min.js"></script>
+</head>
+<body>
+  <div id="flipbook"></div>
+  <script>
+    const pdfUrl = new URLSearchParams(window.location.search).get('file');
+
+    if (!pdfUrl) {
+      document.body.innerHTML = "<h2 style='text-align:center;'>No PDF URL provided. Add ?file=PDF_URL to the URL.</h2>";
+    } else {
+      const container = document.getElementById("flipbook");
+      const pageFlip = new St.PageFlip(container, {
+        width: 600,
+        height: 800,
+        size: "stretch",
+        minWidth: 315,
+        maxWidth: 1000,
+        minHeight: 400,
+        maxHeight: 1536,
+        maxShadowOpacity: 0.5,
+        showCover: false,
+        mobileScrollSupport: false
+      });
+
+      const loadingTask = pdfjsLib.getDocument(pdfUrl);
+      loadingTask.promise.then(function(pdf) {
+        const totalPages = pdf.numPages;
+        const pagePromises = [];
+
+        for (let i = 1; i <= totalPages; i++) {
+          pagePromises.push(pdf.getPage(i).then(function(page) {
+            const viewport = page.getViewport({ scale: 2 });
+            const canvas = document.createElement("canvas");
+            const context = canvas.getContext("2d");
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+
+            return page.render({ canvasContext: context, viewport: viewport }).promise.then(() => {
+              return canvas.toDataURL("image/png");
+            });
+          }));
+        }
+
+        Promise.all(pagePromises).then(images => {
+          const pages = images.map(src => ({ src }));
+          pageFlip.loadFromImages(pages.map(p => p.src));
+        });
+      });
+    }
+  </script>
+</body>
+</html>
